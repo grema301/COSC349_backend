@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const { Client } = require("pg");
@@ -17,7 +18,7 @@ app.get("/", (req, res) => {
 });
 // Database connection
 const client = new Client({
-  host: process.env.DB_HOST || "taskboard-db.cluster-cjkygowy4rs2.us-east-1.rds.amazonaws.com", 
+  host: process.env.DB_HOST || "taskboard-db-instance-0.cjkygowy4rs2.us-east-1.rds.amazonaws.com", 
   user: process.env.DB_USER || "taskuser",
   password: process.env.DB_PASS || "taskpass",
   database: process.env.DB_NAME || "taskboard",
