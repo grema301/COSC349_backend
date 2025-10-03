@@ -6,6 +6,10 @@ const { Client } = require("pg");
 const app = express();
 const PORT = process.env.PORT || 80;
 
+// Middleware
+app.use(express.json()); // Parse JSON bodies
+app.use(cors()); // Enable CORS
+
 // Allow all origins during development (simpler than chasing IPs)
 const path = require("path");
 
@@ -72,17 +76,26 @@ app.get("/tasks/:id", async (req, res) => {
 
 app.post("/tasks", async (req, res) => {
   try {
+    console.log("POST /tasks - Request body:", req.body);
     const { title, description, status, due_date } = req.body;
+    
+    if (!title) {
+      return res.status(400).json({ error: "Title is required" });
+    }
+    
+    console.log("Creating task with:", { title, description, status, due_date });
     const result = await client.query(
       `INSERT INTO tasks (title, description, status, due_date) 
        VALUES ($1, $2, COALESCE($3, 'pending'), $4) 
        RETURNING *`,
       [title, description, status, due_date]
     );
+    console.log("Task created successfully:", result.rows[0]);
     res.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to create task" });
+    console.error("Error creating task:", err);
+    console.error("Error details:", err.message, err.stack);
+    res.status(500).json({ error: "Failed to create task", details: err.message });
   }
 });
 
